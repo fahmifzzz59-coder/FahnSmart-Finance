@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FahnSmart Finance - Warung Ibu Eti</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Navbar -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all">← Kembali</a>
+                <h1 class="text-lg font-bold tracking-tight text-slate-900">🚀 FahnSmart Finance <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-normal">Asisten akuntan</span></h1>
+            </div>
+            <div class="text-xs text-slate-500 font-medium" id="current-date"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Kolom Kiri: Form Input Jurnal Majemuk & Panduan -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center">
+                    <span>📝 Catat Jurnal Majemuk</span>
+                </h2>
+
+                <form id="journal-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Tanggal</label>
+                            <input type="date" id="trx-date" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">No. Bukti</label>
+                            <input type="text" id="trx-ref-no" placeholder="Contoh: BKM-001" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan / Deskripsi Transaksi</label>
+                        <input type="text" id="trx-desc" placeholder="Contoh: Setoran modal awal / Beli printer" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <!-- Bagian DEBIT -->
+                    <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-indigo-800 uppercase tracking-wider">Debit (+)</span>
+                            <button type="button" onclick="addItemRow('debit')" class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded-lg font-medium hover:bg-indigo-700">+ Tambah Akun</button>
+                        </div>
+                        <div id="debit-rows-container" class="space-y-2"></div>
+                        <div class="text-right text-xs font-bold text-indigo-900 pt-1">
+                            Total Debit: <span id="total-debit-preview">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Bagian KREDIT -->
+                    <div class="p-3 bg-rose-50/50 rounded-xl border border-rose-100 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-rose-800 uppercase tracking-wider">Kredit (-)</span>
+                            <button type="button" onclick="addItemRow('credit')" class="text-[10px] bg-rose-600 text-white px-2 py-1 rounded-lg font-medium hover:bg-rose-700">+ Tambah Akun</button>
+                        </div>
+                        <div id="credit-rows-container" class="space-y-2"></div>
+                        <div class="text-right text-xs font-bold text-rose-900 pt-1">
+                            Total Kredit: <span id="total-credit-preview">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="calculateFormTotals()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs py-2 rounded-xl transition-all border border-slate-200">
+                        🔄 Hitung Total Baris Input
+                    </button>
+
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 rounded-xl transition-all shadow-sm">
+                        Simpan Jurnal Transaksi
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panduan Penetapan Debit & Kredit -->
+            <div class="bg-amber-50/70 border border-amber-200 p-5 rounded-2xl shadow-sm text-xs space-y-3">
+                <h3 class="font-bold text-amber-900 flex items-center space-x-1.5 text-sm">
+                    <span>💡 Panduan Saldo Normal & Posisi Akun</span>
+                </h3>
+                <p class="text-amber-800 leading-relaxed">
+                    Gunakan panduan singkat ini saat menentukan posisi akun di Jurnal:
+                </p>
+                <div class="space-y-2">
+                    <div class="bg-white/80 p-2.5 rounded-xl border border-amber-100">
+                        <span class="font-bold text-slate-900 block mb-0.5">🟢 Aset & Beban</span>
+                        <p class="text-slate-600">Bertambah di <strong class="text-indigo-600">Debit</strong>, Berkurang di <strong class="text-rose-600">Kredit</strong>.</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Contoh: Kas, Piutang, Persediaan, Peralatan, Beban.</p>
+                    </div>
+                    <div class="bg-white/80 p-2.5 rounded-xl border border-amber-100">
+                        <span class="font-bold text-slate-900 block mb-0.5">🔵 Liabilitas, Ekuitas, & Pendapatan</span>
+                        <p class="text-slate-600">Bertambah di <strong class="text-rose-600">Kredit</strong>, Berkurang di <strong class="text-indigo-600">Debit</strong>.</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Contoh: Utang Usaha, Modal, Penjualan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Tabel Riwayat & Saldo Akun -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Ringkasan Saldo Akun -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">📊 Posisi Akun (Bagan Akun)</h2>
+                        <p class="text-xs text-slate-500">Akumulasi saldo terkini dari seluruh transaksi jurnal.</p>
+                    </div>
+                    <!-- Kartu Khusus Total Aset -->
+                    <div class="bg-indigo-50 border border-indigo-200 px-4 py-2.5 rounded-xl text-right w-full sm:w-auto">
+                        <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-800 block">Total Aset (Harta)</span>
+                        <span class="text-base font-extrabold text-indigo-900" id="total-assets-summary">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="accounts-summary"></div>
+            </div>
+
+            <!-- Buku Jurnal Umum -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-base font-bold text-slate-900">📜 Buku Jurnal Umum</h2>
+                    <button id="reset-data" class="text-xs text-rose-600 hover:text-rose-800 font-medium">Reset Data</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-xs text-slate-500 uppercase">
+                                <th class="py-2.5 px-3">Tanggal</th>
+                                <th class="py-2.5 px-3">No. Bukti</th>
+                                <th class="py-2.5 px-3">Keterangan / Nama Akun</th>
+                                <th class="py-2.5 px-3 text-center">Ref</th>
+                                <th class="py-2.5 px-3 text-right">Debit (Rp)</th>
+                                <th class="py-2.5 px-3 text-right">Kredit (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journal-table-body" class="divide-y divide-slate-100">
+                            <!-- Dinamis via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bagian Bawah Kanan Jurnal Umum: Tombol Cek & Hasil Balance -->
+                <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <button type="button" onclick="checkTableBalance()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2">
+                        <span>🔍 Cek Total Debit/Kredit & Status Balance</span>
+                    </button>
+
+                    <!-- Kontainer Hasil (Tersembunyi Awalnya) -->
+                    <div id="journal-balance-result" class="hidden w-full sm:w-auto p-3 rounded-xl border text-right">
+                        <div class="text-xs font-semibold text-slate-600 space-x-2">
+                            <span>Debit: <strong id="table-total-debit" class="text-indigo-700">Rp 0</strong></span>
+                            <span>|</span>
+                            <span>Kredit: <strong id="table-total-credit" class="text-rose-700">Rp 0</strong></span>
+                        </div>
+                        <div id="table-status-badge" class="mt-1 text-xs font-bold"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 FahnSmart Finance &bull; Asisten Akuntan
+    </footer>
+
+    <!-- JavaScript Logika Jurnal Umum -->
+    <script>
+        const chartOfAccounts = [
+            { id: '101', name: 'Kas di Laci', type: 'Aset' },
+            { id: '102', name: 'Piutang Usaha (Kasbon)', type: 'Aset' },
+            { id: '103', name: 'Persediaan Barang', type: 'Aset' },
+            { id: '104', name: 'Peralatan / Inventaris Toko', type: 'Aset' },
+            { id: '201', name: 'Utang Usaha', type: 'Liabilitas' },
+            { id: '301', name: 'Modal', type: 'Ekuitas' },
+            { id: '401', name: 'Pendapatan Penjualan', type: 'Pendapatan' },
+            { id: '501', name: 'Beban Operasional / Belanja', type: 'Beban' }
+        ];
+
+        let journals = JSON.parse(localStorage.getItem('databaseFahnSmartFinanceV1')) || [];
+
+        document.getElementById('trx-date').valueAsDate = new Date();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function initRows() {
+            document.getElementById('debit-rows-container').innerHTML = '';
+            document.getElementById('credit-rows-container').innerHTML = '';
+            addItemRow('debit');
+            addItemRow('credit');
+        }
+
+        function addItemRow(type, selectedAcc = '', amountVal = '') {
+            const container = document.getElementById(type === 'debit' ? 'debit-rows-container' : 'credit-rows-container');
+            const rowId = 'row-' + type + '-' + Date.now() + Math.random();
+
+            let optionsHtml = '';
+            chartOfAccounts.forEach(acc => {
+                const selected = acc.id === selectedAcc ? 'selected' : '';
+                optionsHtml += `<option value="${acc.id}" ${selected}>${acc.id} - ${acc.name} (${acc.type})</option>`;
+            });
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = "flex gap-2 items-center";
+            rowDiv.id = rowId;
+            rowDiv.innerHTML = `
+                <select class="account-select w-3/5 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none" required>
+                    ${optionsHtml}
+                </select>
+                <input type="number" placeholder="Nominal" value="${amountVal}" class="amount-input w-2/5 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none" required oninput="calculateFormTotals()">
+                <button type="button" onclick="removeRow('${rowId}')" class="text-slate-400 hover:text-rose-600 font-bold px-1 text-xs">✕</button>
+            `;
+            container.appendChild(rowDiv);
+            calculateFormTotals();
+        }
+
+        function removeRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) {
+                row.remove();
+                calculateFormTotals();
+            }
+        }
+
+        function calculateFormTotals() {
+            let totalDebit = 0;
+            let totalCredit = 0;
+
+            document.querySelectorAll('#debit-rows-container .amount-input').forEach(input => {
+                totalDebit += parseFloat(input.value) || 0;
+            });
+            document.querySelectorAll('#credit-rows-container .amount-input').forEach(input => {
+                totalCredit += parseFloat(input.value) || 0;
+            });
+
+            document.getElementById('total-debit-preview').innerText = formatRupiah(totalDebit);
+            document.getElementById('total-credit-preview').innerText = formatRupiah(totalCredit);
+        }
+
+        // Fungsi Cek Balance Buku Jurnal Umum saat tombol diklik
+        function checkTableBalance() {
+            let totalDebitAll = 0;
+            let totalCreditAll = 0;
+
+            journals.forEach(trx => {
+                trx.debits.forEach(d => { totalDebitAll += d.amount; });
+                trx.credits.forEach(c => { totalCreditAll += c.amount; });
+            });
+
+            document.getElementById('table-total-debit').innerText = formatRupiah(totalDebitAll);
+            document.getElementById('table-total-credit').innerText = formatRupiah(totalCreditAll);
+
+            const resultBox = document.getElementById('journal-balance-result');
+            const statusBadge = document.getElementById('table-status-badge');
+            resultBox.classList.remove('hidden');
+
+            if (journals.length === 0) {
+                resultBox.className = "w-full sm:w-auto p-3 rounded-xl border text-right bg-slate-50 border-slate-200";
+                statusBadge.innerHTML = '<span class="text-slate-500">Belum ada data jurnal</span>';
+            } else if (totalDebitAll === totalCreditAll) {
+                resultBox.className = "w-full sm:w-auto p-3 rounded-xl border text-right bg-emerald-50 border-emerald-200";
+                statusBadge.innerHTML = '<span class="text-emerald-700">✅ BALANCE (Seimbang)</span>';
+            } else {
+                resultBox.className = "w-full sm:w-auto p-3 rounded-xl border text-right bg-rose-50 border-rose-200";
+                statusBadge.innerHTML = '<span class="text-rose-700">❌ TIDAK BALANCE</span>';
+            }
+        }
+
+        function renderAccountsSummary() {
+            const container = document.getElementById('accounts-summary');
+            container.innerHTML = '';
+
+            let accountBalances = {};
+            chartOfAccounts.forEach(acc => { accountBalances[acc.id] = 0; });
+
+            journals.forEach(trx => {
+                trx.debits.forEach(item => {
+                    const acc = chartOfAccounts.find(a => a.id === item.accountId);
+                    if (acc) {
+                        if (['Aset', 'Beban'].includes(acc.type)) {
+                            accountBalances[acc.id] += item.amount;
+                        } else {
+                            accountBalances[acc.id] -= item.amount;
+                        }
+                    }
+                });
+
+                trx.credits.forEach(item => {
+                    const acc = chartOfAccounts.find(a => a.id === item.accountId);
+                    if (acc) {
+                        if (['Liabilitas', 'Ekuitas', 'Pendapatan'].includes(acc.type)) {
+                            accountBalances[acc.id] += item.amount;
+                        } else {
+                            accountBalances[acc.id] -= item.amount;
+                        }
+                    }
+                });
+            });
+
+            let totalAssets = 0;
+
+            chartOfAccounts.forEach(acc => {
+                const balance = accountBalances[acc.id];
+                if (acc.type === 'Aset') {
+                    totalAssets += balance;
+                }
+
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                        <span class="text-xs text-slate-500 block font-medium">${acc.name}</span>
+                        <span class="text-sm font-bold text-slate-900 mt-1 block">${formatRupiah(balance)}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-assets-summary').innerText = formatRupiah(totalAssets);
+        }
+
+        function renderJournals() {
+            const tbody = document.getElementById('journal-table-body');
+            tbody.innerHTML = '';
+
+            // Sembunyikan kembali kotak hasil cek jika tabel dirender ulang
+            document.getElementById('journal-balance-result').classList.add('hidden');
+
+            if (journals.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">Belum ada transaksi tercatat.</td></tr>`;
+                return;
+            }
+
+            const sortedJournals = [...journals].reverse();
+
+            sortedJournals.forEach(trx => {
+                const rowSpanCount = trx.debits.length + trx.credits.length + 1;
+
+                tbody.innerHTML += `
+                    <tr class="bg-slate-50/50 border-t border-slate-200">
+                        <td class="py-2 px-3 text-xs font-medium text-slate-700 align-top" rowspan="${rowSpanCount}">${trx.date}</td>
+                        <td class="py-2 px-3 text-xs align-top" rowspan="${rowSpanCount}">
+                            <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-mono text-[10px] inline-block">${trx.refNo || '-'}</span>
+                        </td>
+                        <td class="py-2 px-3 text-xs font-bold text-slate-900" colspan="4">${trx.desc}</td>
+                    </tr>
+                `;
+
+                trx.debits.forEach(d => {
+                    const acc = chartOfAccounts.find(a => a.id === d.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-indigo-700 font-medium pl-6">${acc ? acc.name : d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(d.amount)}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                        </tr>
+                    `;
+                });
+
+                trx.credits.forEach(c => {
+                    const acc = chartOfAccounts.find(a => a.id === c.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-rose-700 font-medium pl-12">${acc ? acc.name : c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(c.amount)}</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('journal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('trx-date').value;
+            const refNo = document.getElementById('trx-ref-no').value;
+            const desc = document.getElementById('trx-desc').value;
+
+            let debits = [];
+            let totalDebit = 0;
+            document.querySelectorAll('#debit-rows-container > div').forEach(row => {
+                const accountId = row.querySelector('.account-select').value;
+                const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
+                debits.push({ accountId, amount });
+                totalDebit += amount;
+            });
+
+            let credits = [];
+            let totalCredit = 0;
+            document.querySelectorAll('#credit-rows-container > div').forEach(row => {
+                const accountId = row.querySelector('.account-select').value;
+                const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
+                credits.push({ accountId, amount });
+                totalCredit += amount;
+            });
+
+            if (totalDebit !== totalCredit) {
+                alert(`Transaksi tidak seimbang!\nTotal Debit: ${formatRupiah(totalDebit)}\nTotal Kredit: ${formatRupiah(totalCredit)}\n\nJumlah Total Debit dan Kredit harus sama.`);
+                return;
+            }
+
+            const newTrx = { date, refNo, desc, debits, credits };
+            journals.push(newTrx);
+
+            localStorage.setItem('databaseFahnSmartFinanceV1', JSON.stringify(journals));
+
+            document.getElementById('trx-desc').value = '';
+            document.getElementById('trx-ref-no').value = '';
+            document.getElementById('trx-date').valueAsDate = new Date();
+            initRows();
+
+            renderJournals();
+            renderAccountsSummary();
+        });
+
+        document.getElementById('reset-data').addEventListener('click', function() {
+            if (confirm("Yakin ingin menghapus seluruh riwayat jurnal FahnSmart Finance?")) {
+                localStorage.removeItem('databaseFahnSmartFinanceV1');
+                journals = [];
+                renderJournals();
+                renderAccountsSummary();
+            }
+        });
+
+        initRows();
+        renderJournals();
+        renderAccountsSummary();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Sistem Keuangan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-white min-h-screen flex items-center justify-center p-6 text-slate-800">
+
+    <div class="max-w-md w-full text-center">
+        <div class="mb-10">
+            <div class="text-3xl mb-2">💼</div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Pilih Sistem Pencatatan</h1>
+            <p class="text-sm text-slate-500 mt-1">Silakan tentukan metode pembukuan Anda.</p>
+        </div>
+
+        <div class="space-y-3 text-left">
+            <!-- Menuju ke Halaman Login (Single-Entry) -->
+            <a href="login.html" class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-2xl p-2 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 transition-colors">📝</span>
+                    <div class="space-y-0.5">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-black">Single-Entry System</h3>
+                        <p class="text-xs text-slate-500">Pencatatan kas masuk, keluar, & kasbon harian.</p>
+                    </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all">→</span>
+            </a>
+
+            <!-- Menuju ke Halaman admin2.html (Double-Entry) -->
+            <a href="admin2.html" class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-2xl p-2 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 transition-colors">📊</span>
+                    <div class="space-y-0.5">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-black">Double-Entry System</h3>
+                        <p class="text-xs text-slate-500">Standar akuntansi seimbang Debit & Kredit.</p>
+                    </div>
+                </div>
+                <span class="text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all">→</span>
+            </a>
+        </div>
+
+        <div class="mt-12 text-center">
+            <p class="text-xs text-slate-400">&copy; 2026 Financial Portal</p>
+        </div>
+    </div>
+
+</body>
+</html>
