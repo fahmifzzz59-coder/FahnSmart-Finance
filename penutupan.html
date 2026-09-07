@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Penutup - FahnSmart Finance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent mb-3"></div>
+        <p class="text-xs font-semibold text-slate-600 tracking-wider uppercase animate-pulse">Memuat Jurnal Penutup...</p>
+    </div>
+
+    <!-- Navbar / Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="laporan.html" class="text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke Laporan
+                </a>
+                <h1 class="text-sm md:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <i data-lucide="lock" class="w-5 h-5 text-indigo-600"></i> Jurnal Penutup 
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-normal">Closing Entries</span>
+                </h1>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="generateClosingEntries()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Generate Jurnal Penutup Otomatis
+                </button>
+                <div class="text-xs text-slate-500 font-medium hidden sm:block" id="current-date"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow space-y-6">
+        
+        <!-- Informasi Penjelasan -->
+        <div class="bg-indigo-50/70 border border-indigo-200 p-5 rounded-2xl shadow-sm text-xs space-y-2">
+            <h3 class="font-bold text-indigo-900 flex items-center space-x-1.5 text-sm">
+                <i data-lucide="info" class="w-4 h-4 text-indigo-700"></i> <span>Tentang Jurnal Penutup</span>
+            </h3>
+            <p class="text-slate-600">
+                Jurnal penutup dibuat pada akhir periode akuntansi untuk mengenolkan saldo akun nominal (Pendapatan dan Beban) agar siap mencatat transaksi periode berikutnya. Saldo laba/rugi bersih dipindahkan langsung ke akun Modal.
+            </p>
+        </div>
+
+        <!-- Tabel Jurnal Penutup -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-indigo-600"></i> Daftar Jurnal Penutup Periode Ini
+                </h2>
+                <span id="closing-status-badge" class="text-xs font-bold px-3 py-1 rounded-xl bg-slate-100 text-slate-700">Belum Digenerate</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs text-slate-500 uppercase">
+                            <th class="py-2.5 px-3">Tanggal</th>
+                            <th class="py-2.5 px-3">Keterangan / Nama Akun</th>
+                            <th class="py-2.5 px-3 text-center">Ref</th>
+                            <th class="py-2.5 px-3 text-right">Debit (Rp)</th>
+                            <th class="py-2.5 px-3 text-right">Kredit (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="closing-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="text-center py-6 text-slate-400 text-xs">Klik tombol "Generate Jurnal Penutup Otomatis" di atas untuk memproses data.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 FahnSmart Finance &bull; Jurnal Penutup
+    </footer>
+
+    <!-- JavaScript Jurnal Penutup -->
+    <script>
+        lucide.createIcons();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+        const chartOfAccounts = [
+            { id: '101', name: 'Kas di Laci', type: 'Aset', normal: 'Debit' },
+            { id: '102', name: 'Piutang Usaha (Kasbon)', type: 'Aset', normal: 'Debit' },
+            { id: '103', name: 'Persediaan Barang', type: 'Aset', normal: 'Debit' },
+            { id: '104', name: 'Peralatan / Inventaris Toko', type: 'Aset', normal: 'Debit' },
+            { id: '201', name: 'Utang Usaha', type: 'Liabilitas', normal: 'Kredit' },
+            { id: '301', name: 'Modal', type: 'Ekuitas', normal: 'Kredit' },
+            { id: '401', name: 'Pendapatan Penjualan', type: 'Pendapatan', normal: 'Kredit' },
+            { id: '501', name: 'Beban Operasional / Belanja', type: 'Beban', normal: 'Debit' }
+        ];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function generateClosingEntries() {
+            let journals = JSON.parse(localStorage.getItem('databaseFahnSmartFinanceV1')) || [];
+            let adjustments = JSON.parse(localStorage.getItem('databaseFahnSmartAdjustmentsV1')) || [];
+
+            let accountTotals = {};
+            chartOfAccounts.forEach(acc => {
+                accountTotals[acc.id] = { debit: 0, credit: 0 };
+            });
+
+            const allTransactions = [...journals, ...adjustments];
+            allTransactions.forEach(trx => {
+                trx.debits.forEach(d => {
+                    if (accountTotals[d.accountId]) accountTotals[d.accountId].debit += d.amount;
+                });
+                trx.credits.forEach(c => {
+                    if (accountTotals[c.accountId]) accountTotals[c.accountId].credit += c.amount;
+                });
+            });
+
+            let netBalances = {};
+            chartOfAccounts.forEach(acc => {
+                let t = accountTotals[acc.id];
+                if (acc.normal === 'Debit') {
+                    netBalances[acc.id] = t.debit - t.credit;
+                } else {
+                    netBalances[acc.id] = t.credit - t.debit;
+                }
+            });
+
+            let totalIncome = 0;
+            let totalExpense = 0;
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Pendapatan') totalIncome += val;
+                if (acc.type === 'Beban') totalExpense += val;
+            });
+
+            let closingSteps = [];
+            let todayStr = new Date().toISOString().split('T')[0];
+
+            // 1. Menutup Akun Pendapatan
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Pendapatan' && val > 0) {
+                    closingSteps.push({
+                        date: todayStr,
+                        desc: 'Menutup Akun Pendapatan ke Modal',
+                        debits: [{ accountId: acc.id, amount: val }],
+                        credits: [{ accountId: '301', amount: val }]
+                    });
+                }
+            });
+
+            // 2. Menutup Akun Beban
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Beban' && val > 0) {
+                    closingSteps.push({
+                        date: todayStr,
+                        desc: 'Menutup Akun Beban ke Modal',
+                        debits: [{ accountId: '301', amount: val }],
+                        credits: [{ accountId: acc.id, amount: val }]
+                    });
+                }
+            });
+
+            // Render ke Tabel
+            const tbody = document.getElementById('closing-table-body');
+            tbody.innerHTML = '';
+
+            if (closingSteps.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 text-xs">Tidak ada saldo pendapatan atau beban yang perlu ditutup.</td></tr>`;
+                document.getElementById('closing-status-badge').className = "text-xs font-bold px-3 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200";
+                document.getElementById('closing-status-badge').innerText = "NIHIL / TIDAK ADA AKUN NOMINAL";
+                return;
+            }
+
+            closingSteps.forEach(trx => {
+                const rowSpanCount = trx.debits.length + trx.credits.length + 1;
+                tbody.innerHTML += `
+                    <tr class="bg-slate-50/50 border-t border-slate-200">
+                        <td class="py-2 px-3 text-xs font-medium text-slate-700 align-top" rowspan="${rowSpanCount}">${trx.date}</td>
+                        <td class="py-2 px-3 text-xs font-bold text-slate-900" colspan="4">${trx.desc}</td>
+                    </tr>
+                `;
+                trx.debits.forEach(d => {
+                    const acc = chartOfAccounts.find(a => a.id === d.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-indigo-700 font-medium pl-6">${acc ? acc.name : d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(d.amount)}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                        </tr>
+                    `;
+                });
+                trx.credits.forEach(c => {
+                    const acc = chartOfAccounts.find(a => a.id === c.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-rose-700 font-medium pl-12">${acc ? acc.name : c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(c.amount)}</td>
+                        </tr>
+                    `;
+                });
+            });
+
+            document.getElementById('closing-status-badge').className = "text-xs font-bold px-3 py-1 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200";
+            document.getElementById('closing-status-badge').innerText = "JURNAL PENUTUP BERHASIL DIBUAT";
+        }
+
+        // Inisialisasi & Tutup Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 300);
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>

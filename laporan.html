@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Keuangan - FahnSmart Finance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-emerald-600 border-t-transparent mb-3"></div>
+        <p class="text-xs font-semibold text-slate-600 tracking-wider uppercase animate-pulse">Menghitung Laporan Keuangan...</p>
+    </div>
+
+    <!-- Navbar / Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="penyesuaian.html" class="text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke Penyesuaian
+                </a>
+                <h1 class="text-sm md:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-600"></i> Laporan Keuangan 
+                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-normal">Financial Statements</span>
+                </h1>
+            </div>
+            
+            <!-- Tombol Navigasi Lanjutan & Tanggal -->
+            <div class="flex items-center gap-3">
+                <a href="penutup.html" class="text-xs font-medium text-indigo-700 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 border border-indigo-200 shadow-sm">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i> Jurnal Penutup
+                </a>
+                <div class="text-xs text-slate-500 font-medium hidden sm:block" id="current-date"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow space-y-8">
+        
+        <!-- Ringkasan Eksekutif / Kartu Statistik -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-1">
+                <span class="text-xs font-medium text-slate-500">Total Pendapatan Bersih</span>
+                <div class="text-xl font-bold text-emerald-600" id="summary-income">Rp 0</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-1">
+                <span class="text-xs font-medium text-slate-500">Total Beban Operasional</span>
+                <div class="text-xl font-bold text-rose-600" id="summary-expense">Rp 0</div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-1">
+                <span class="text-xs font-medium text-slate-500">Laba / Rugi Bersih Periode Ini</span>
+                <div class="text-xl font-bold text-indigo-600" id="summary-net-profit">Rp 0</div>
+            </div>
+        </div>
+
+        <!-- Bagian 1: Laporan Laba Rugi (Income Statement) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-emerald-600"></i> 1. Laporan Laba Rugi (Income Statement)
+                </h2>
+                <span class="text-xs text-slate-400 font-mono">Periode Berjalan</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <tbody id="income-statement-body" class="divide-y divide-slate-100">
+                        <!-- Data dimasukkan via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bagian 2: Laporan Perubahan Ekuitas / Modal (Statement of Changes in Equity) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i> 2. Laporan Perubahan Modal (Equity Statement)
+                </h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <tbody id="equity-statement-body" class="divide-y divide-slate-100">
+                        <!-- Data dimasukkan via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bagian 3: Laporan Posisi Keuangan / Neraca (Balance Sheet) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide=" escalas" class="w-4 h-4 text-blue-600"></i> 3. Laporan Posisi Keuangan / Neraca (Balance Sheet)
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+                <!-- Sisi Aset -->
+                <div class="space-y-3 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Aset (Harta)</h3>
+                    <table class="w-full text-sm">
+                        <tbody id="balance-asset-body" class="divide-y divide-slate-200/50"></tbody>
+                    </table>
+                </div>
+                <!-- Sisi Liabilitas & Ekuitas -->
+                <div class="space-y-3 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Liabilitas & Ekuitas</h3>
+                    <table class="w-full text-sm">
+                        <tbody id="balance-liability-equity-body" class="divide-y divide-slate-200/50"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 FahnSmart Finance &bull; Laporan Keuangan Lengkap
+    </footer>
+
+    <!-- JavaScript Kalkulasi Laporan -->
+    <script>
+        lucide.createIcons();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+        const chartOfAccounts = [
+            { id: '101', name: 'Kas di Laci', type: 'Aset', normal: 'Debit' },
+            { id: '102', name: 'Piutang Usaha (Kasbon)', type: 'Aset', normal: 'Debit' },
+            { id: '103', name: 'Persediaan Barang', type: 'Aset', normal: 'Debit' },
+            { id: '104', name: 'Peralatan / Inventaris Toko', type: 'Aset', normal: 'Debit' },
+            { id: '201', name: 'Utang Usaha', type: 'Liabilitas', normal: 'Kredit' },
+            { id: '301', name: 'Modal', type: 'Ekuitas', normal: 'Kredit' },
+            { id: '401', name: 'Pendapatan Penjualan', type: 'Pendapatan', normal: 'Kredit' },
+            { id: '501', name: 'Beban Operasional / Belanja', type: 'Beban', normal: 'Debit' }
+        ];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function generateFinancialReports() {
+            // Ambil data dari Jurnal Umum & Jurnal Penyesuaian
+            let journals = JSON.parse(localStorage.getItem('databaseFahnSmartFinanceV1')) || [];
+            let adjustments = JSON.parse(localStorage.getItem('databaseFahnSmartAdjustmentsV1')) || [];
+
+            let accountTotals = {};
+            chartOfAccounts.forEach(acc => {
+                accountTotals[acc.id] = { debit: 0, credit: 0 };
+            });
+
+            const allTransactions = [...journals, ...adjustments];
+            allTransactions.forEach(trx => {
+                trx.debits.forEach(d => {
+                    if (accountTotals[d.accountId]) accountTotals[d.accountId].debit += d.amount;
+                });
+                trx.credits.forEach(c => {
+                    if (accountTotals[c.accountId]) accountTotals[c.accountId].credit += c.amount;
+                });
+            });
+
+            let netBalances = {};
+            chartOfAccounts.forEach(acc => {
+                let t = accountTotals[acc.id];
+                if (acc.normal === 'Debit') {
+                    netBalances[acc.id] = t.debit - t.credit;
+                } else {
+                    netBalances[acc.id] = t.credit - t.debit;
+                }
+            });
+
+            // 1. Kalkulasi Laba Rugi
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let incomeHtml = '';
+            let expenseHtml = '';
+
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Pendapatan') {
+                    totalIncome += val;
+                    incomeHtml += `<tr><td class="py-2 text-xs text-slate-600">${acc.name}</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(val)}</td></tr>`;
+                }
+                if (acc.type === 'Beban') {
+                    totalExpense += val;
+                    expenseHtml += `<tr><td class="py-2 text-xs text-slate-600">${acc.name}</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(val)}</td></tr>`;
+                }
+            });
+
+            let netProfit = totalIncome - totalExpense;
+
+            document.getElementById('income-statement-body').innerHTML = `
+                <tr><td colspan="2" class="py-1 text-xs font-bold text-emerald-700 uppercase">Pendapatan</td></tr>
+                ${incomeHtml || '<tr><td colspan="2" class="py-2 text-xs text-slate-400 italic">Belum ada pendapatan</td></tr>'}
+                <tr><td class="py-2.5 text-xs font-bold text-slate-800">Total Pendapatan</td><td class="py-2.5 text-xs text-right font-bold text-emerald-600">${formatRupiah(totalIncome)}</td></tr>
+                <tr><td colspan="2" class="py-1 pt-4 text-xs font-bold text-rose-700 uppercase">Beban Operasional</td></tr>
+                ${expenseHtml || '<tr><td colspan="2" class="py-2 text-xs text-slate-400 italic">Belum ada beban</td></tr>'}
+                <tr><td class="py-2.5 text-xs font-bold text-slate-800">Total Beban</td><td class="py-2.5 text-xs text-right font-bold text-rose-600">${formatRupiah(totalExpense)}</td></tr>
+                <tr class="bg-slate-50"><td class="py-3 text-xs font-bold text-slate-900">Laba / (Rugi) Bersih</td><td class="py-3 text-xs text-right font-bold ${netProfit >= 0 ? 'text-indigo-600' : 'text-rose-600'}">${formatRupiah(netProfit)}</td></tr>
+            `;
+
+            // 2. Kalkulasi Perubahan Modal
+            let initialModal = netBalances['301'] || 0;
+            // Jika modal awal belum diinput manual, ambil dari setoran modal di transaksi jika ada, default 0
+            let endingModal = initialModal + netProfit;
+
+            document.getElementById('equity-statement-body').innerHTML = `
+                <tr><td class="py-2 text-xs text-slate-600">Modal Awal / Disetor</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(initialModal)}</td></tr>
+                <tr><td class="py-2 text-xs text-slate-600">Laba / (Rugi) Bersih Periode Ini</td><td class="py-2 text-xs text-right font-semibold ${netProfit >= 0 ? 'text-indigo-600' : 'text-rose-600'}">${formatRupiah(netProfit)}</td></tr>
+                <tr class="bg-slate-50"><td class="py-3 text-xs font-bold text-slate-900">Modal Akhir</td><td class="py-3 text-xs text-right font-bold text-slate-900">${formatRupiah(endingModal)}</td></tr>
+            `;
+
+            // 3. Kalkulasi Neraca (Balance Sheet)
+            let totalAsset = 0;
+            let assetHtml = '';
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Aset') {
+                    totalAsset += val;
+                    assetHtml += `<tr><td class="py-2 text-xs text-slate-600">${acc.name}</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(val)}</td></tr>`;
+                }
+            });
+
+            let totalLiability = 0;
+            let liabilityHtml = '';
+            chartOfAccounts.forEach(acc => {
+                let val = netBalances[acc.id] || 0;
+                if (acc.type === 'Liabilitas') {
+                    totalLiability += val;
+                    liabilityHtml += `<tr><td class="py-2 text-xs text-slate-600">${acc.name}</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(val)}</td></tr>`;
+                }
+            });
+
+            let totalLiabAndEquity = totalLiability + endingModal;
+
+            document.getElementById('balance-asset-body').innerHTML = `
+                ${assetHtml}
+                <tr><td class="py-3 text-xs font-bold text-slate-900">Total Aset</td><td class="py-3 text-xs text-right font-bold text-blue-600">${formatRupiah(totalAsset)}</td></tr>
+            `;
+
+            document.getElementById('balance-liability-equity-body').innerHTML = `
+                ${liabilityHtml}
+                <tr><td class="py-2 text-xs text-slate-600">Modal Akhir Periode</td><td class="py-2 text-xs text-right font-semibold text-slate-800">${formatRupiah(endingModal)}</td></tr>
+                <tr><td class="py-3 text-xs font-bold text-slate-900">Total Liabilitas & Ekuitas</td><td class="py-3 text-xs text-right font-bold text-indigo-600">${formatRupiah(totalLiabAndEquity)}</td></tr>
+            `;
+
+            // Update Ringkasan Kartu Atas
+            document.getElementById('summary-income').innerText = formatRupiah(totalIncome);
+            document.getElementById('summary-expense').innerText = formatRupiah(totalExpense);
+            document.getElementById('summary-net-profit').innerText = formatRupiah(netProfit);
+        }
+
+        // Inisialisasi & Tutup Loading Screen
+        window.addEventListener('load', function() {
+            generateFinancialReports();
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 300);
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Penyesuaian - FahnSmart Finance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent mb-3"></div>
+        <p class="text-xs font-semibold text-slate-600 tracking-wider uppercase animate-pulse">Memuat Jurnal Penyesuaian...</p>
+    </div>
+
+    <!-- Navbar / Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="neraca.html" class="text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke Neraca Saldo
+                </a>
+                <h1 class="text-sm md:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <i data-lucide="file-edit" class="w-5 h-5 text-indigo-600"></i> Jurnal Penyesuaian 
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-normal">Adjusting Entries</span>
+                </h1>
+            </div>
+            
+            <!-- Tombol Navigasi ke Laporan Keuangan & Tanggal -->
+            <div class="flex items-center gap-3">
+                <a href="laporan.html" class="text-xs font-medium text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 border border-emerald-200 shadow-sm">
+                    <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i> Lanjut ke Laporan Keuangan
+                </a>
+                <div class="text-xs text-slate-500 font-medium hidden sm:block" id="current-date"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Kolom Kiri: Form Input Jurnal Penyesuaian -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
+                <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i> Catat Penyesuaian Akhir Periode
+                </h2>
+
+                <form id="adjustment-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Tanggal</label>
+                            <input type="date" id="adj-date" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">No. Bukti</label>
+                            <input type="text" id="adj-ref-no" placeholder="Contoh: AJP-001" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan Penyesuaian</label>
+                        <input type="text" id="adj-desc" placeholder="Contoh: Penyusutan peralatan toko" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <!-- Bagian DEBIT -->
+                    <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-indigo-800 uppercase tracking-wider">Debit (+)</span>
+                            <button type="button" onclick="addAdjItemRow('debit')" class="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded-lg font-medium hover:bg-indigo-700">+ Tambah Akun</button>
+                        </div>
+                        <div id="adj-debit-container" class="space-y-2"></div>
+                        <div class="text-right text-xs font-bold text-indigo-900 pt-1">
+                            Total Debit: <span id="adj-total-debit">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Bagian KREDIT -->
+                    <div class="p-3 bg-rose-50/50 rounded-xl border border-rose-100 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-rose-800 uppercase tracking-wider">Kredit (-)</span>
+                            <button type="button" onclick="addAdjItemRow('credit')" class="text-[10px] bg-rose-600 text-white px-2 py-1 rounded-lg font-medium hover:bg-rose-700">+ Tambah Akun</button>
+                        </div>
+                        <div id="adj-credit-container" class="space-y-2"></div>
+                        <div class="text-right text-xs font-bold text-rose-900 pt-1">
+                            Total Kredit: <span id="adj-total-credit">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm py-2.5 rounded-xl transition-all shadow-sm">
+                        Simpan Jurnal Penyesuaian
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panduan Penyesuaian Umum -->
+            <div class="bg-indigo-50/70 border border-indigo-200 p-5 rounded-2xl shadow-sm text-xs space-y-3">
+                <h3 class="font-bold text-indigo-900 flex items-center space-x-1.5 text-sm">
+                    <i data-lucide="info" class="w-4 h-4 text-indigo-700"></i> <span>Kasus Penyesuaian Umum</span>
+                </h3>
+                <div class="space-y-2 text-slate-600">
+                    <p><strong>1. Penyusutan Aset:</strong> Debit <i>Beban Penyusutan Peralatan</i>, Kredit <i>Akumulasi Penyusutan</i>.</p>
+                    <p><strong>2. Pemakaian Perlengkapan:</strong> Debit <i>Beban Perlengkapan</i>, Kredit <i>Persediaan/Perlengkapan</i>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Daftar Jurnal Penyesuaian -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                    <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="book" class="w-4 h-4 text-indigo-600"></i> Riwayat Jurnal Penyesuaian Tercatat
+                    </h2>
+                    <button id="reset-adj" class="text-xs text-rose-600 hover:text-rose-800 font-medium">Reset Data Penyesuaian</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-xs text-slate-500 uppercase">
+                                <th class="py-2.5 px-3">Tanggal</th>
+                                <th class="py-2.5 px-3">No. Bukti</th>
+                                <th class="py-2.5 px-3">Keterangan / Nama Akun</th>
+                                <th class="py-2.5 px-3 text-center">Ref</th>
+                                <th class="py-2.5 px-3 text-right">Debit (Rp)</th>
+                                <th class="py-2.5 px-3 text-right">Kredit (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustment-table-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 FahnSmart Finance &bull; Jurnal Penyesuaian
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        lucide.createIcons();
+        document.getElementById('adj-date').valueAsDate = new Date();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+        const chartOfAccounts = [
+            { id: '101', name: 'Kas di Laci', type: 'Aset' },
+            { id: '102', name: 'Piutang Usaha (Kasbon)', type: 'Aset' },
+            { id: '103', name: 'Persediaan Barang', type: 'Aset' },
+            { id: '104', name: 'Peralatan / Inventaris Toko', type: 'Aset' },
+            { id: '201', name: 'Utang Usaha', type: 'Liabilitas' },
+            { id: '301', name: 'Modal', type: 'Ekuitas' },
+            { id: '401', name: 'Pendapatan Penjualan', type: 'Pendapatan' },
+            { id: '501', name: 'Beban Operasional / Belanja', type: 'Beban' }
+        ];
+
+        let adjustments = JSON.parse(localStorage.getItem('databaseFahnSmartAdjustmentsV1')) || [];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function initAdjRows() {
+            document.getElementById('adj-debit-container').innerHTML = '';
+            document.getElementById('adj-credit-container').innerHTML = '';
+            addAdjItemRow('debit');
+            addAdjItemRow('credit');
+        }
+
+        function addAdjItemRow(type, selectedAcc = '', amountVal = '') {
+            const container = document.getElementById(type === 'debit' ? 'adj-debit-container' : 'adj-credit-container');
+            const rowId = 'adj-row-' + type + '-' + Date.now() + Math.random();
+            let optionsHtml = '';
+            chartOfAccounts.forEach(acc => {
+                const selected = acc.id === selectedAcc ? 'selected' : '';
+                optionsHtml += `<option value="${acc.id}" ${selected}>${acc.id} - ${acc.name} (${acc.type})</option>`;
+            });
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = "flex gap-2 items-center";
+            rowDiv.id = rowId;
+            rowDiv.innerHTML = `
+                <select class="account-select w-3/5 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none" required>${optionsHtml}</select>
+                <input type="number" placeholder="Nominal" value="${amountVal}" class="amount-input w-2/5 text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none" required oninput="calculateAdjTotals()">
+                <button type="button" onclick="removeAdjRow('${rowId}')" class="text-slate-400 hover:text-rose-600 font-bold px-1 text-xs">✕</button>
+            `;
+            container.appendChild(rowDiv);
+            calculateAdjTotals();
+        }
+
+        function removeAdjRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) { row.remove(); calculateAdjTotals(); }
+        }
+
+        function calculateAdjTotals() {
+            let totalDebit = 0, totalCredit = 0;
+            document.querySelectorAll('#adj-debit-container .amount-input').forEach(input => { totalDebit += parseFloat(input.value) || 0; });
+            document.querySelectorAll('#adj-credit-container .amount-input').forEach(input => { totalCredit += parseFloat(input.value) || 0; });
+            document.getElementById('adj-total-debit').innerText = formatRupiah(totalDebit);
+            document.getElementById('adj-total-credit').innerText = formatRupiah(totalCredit);
+        }
+
+        function renderAdjustments() {
+            const tbody = document.getElementById('adjustment-table-body');
+            tbody.innerHTML = '';
+
+            if (adjustments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">Belum ada jurnal penyesuaian tercatat.</td></tr>`;
+                return;
+            }
+
+            [...adjustments].reverse().forEach(trx => {
+                const rowSpanCount = trx.debits.length + trx.credits.length + 1;
+                tbody.innerHTML += `
+                    <tr class="bg-slate-50/50 border-t border-slate-200">
+                        <td class="py-2 px-3 text-xs font-medium text-slate-700 align-top" rowspan="${rowSpanCount}">${trx.date}</td>
+                        <td class="py-2 px-3 text-xs align-top" rowspan="${rowSpanCount}">
+                            <span class="bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded font-mono text-[10px] inline-block border border-indigo-200">${trx.refNo || '-'}</span>
+                        </td>
+                        <td class="py-2 px-3 text-xs font-bold text-slate-900" colspan="4">${trx.desc}</td>
+                    </tr>
+                `;
+                trx.debits.forEach(d => {
+                    const acc = chartOfAccounts.find(a => a.id === d.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-indigo-700 font-medium pl-6">${acc ? acc.name : d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${d.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(d.amount)}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                        </tr>
+                    `;
+                });
+                trx.credits.forEach(c => {
+                    const acc = chartOfAccounts.find(a => a.id === c.accountId);
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-all">
+                            <td class="py-1.5 px-3 text-xs text-rose-700 font-medium pl-12">${acc ? acc.name : c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-center text-slate-500 font-mono">${c.accountId}</td>
+                            <td class="py-1.5 px-3 text-xs text-right text-slate-300 pr-6">-</td>
+                            <td class="py-1.5 px-3 text-xs text-right font-semibold text-slate-700">${formatRupiah(c.amount)}</td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('adjustment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const date = document.getElementById('adj-date').value;
+            const refNo = document.getElementById('adj-ref-no').value;
+            const desc = document.getElementById('adj-desc').value;
+
+            let debits = [], totalDebit = 0;
+            document.querySelectorAll('#adj-debit-container > div').forEach(row => {
+                const accountId = row.querySelector('.account-select').value;
+                const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
+                debits.push({ accountId, amount });
+                totalDebit += amount;
+            });
+
+            let credits = [], totalCredit = 0;
+            document.querySelectorAll('#adj-credit-container > div').forEach(row => {
+                const accountId = row.querySelector('.account-select').value;
+                const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
+                credits.push({ accountId, amount });
+                totalCredit += amount;
+            });
+
+            if (totalDebit !== totalCredit) {
+                alert(`Penyesuaian tidak seimbang!\nTotal Debit: ${formatRupiah(totalDebit)}\nTotal Kredit: ${formatRupiah(totalCredit)}`);
+                return;
+            }
+
+            adjustments.push({ date, refNo, desc, debits, credits });
+            localStorage.setItem('databaseFahnSmartAdjustmentsV1', JSON.stringify(adjustments));
+            document.getElementById('adj-desc').value = '';
+            document.getElementById('adj-ref-no').value = '';
+            document.getElementById('adj-date').valueAsDate = new Date();
+            initAdjRows();
+            renderAdjustments();
+        });
+
+        document.getElementById('reset-adj').addEventListener('click', function() {
+            if (confirm("Yakin ingin menghapus seluruh riwayat jurnal penyesuaian?")) {
+                localStorage.removeItem('databaseFahnSmartAdjustmentsV1');
+                adjustments = [];
+                renderAdjustments();
+            }
+        });
+
+        // Inisialisasi & Tutup Loading Screen
+        window.addEventListener('load', function() {
+            initAdjRows();
+            renderAdjustments();
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 300);
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neraca Saldo - FahnSmart Finance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center space-y-4 transition-opacity duration-300">
+        <div class="relative flex items-center justify-center">
+            <div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+            <i data-lucide="scale" class="w-5 h-5 text-indigo-600 absolute"></i>
+        </div>
+        <div class="text-center space-y-1">
+            <h3 class="text-sm font-bold text-slate-900">Neraca Saldo Anda Sedang Di Proses</h3>
+            <p class="text-xs text-slate-400">Harap tunggu sebentar...</p>
+        </div>
+    </div>
+
+    <!-- Navbar / Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <a href="admin2.html" class="text-xs font-medium text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Kembali ke Jurnal
+                </a>
+                <h1 class="text-sm md:text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                    <i data-lucide="scale" class="w-5 h-5 text-indigo-600"></i> Neraca Saldo 
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-normal">Trial Balance</span>
+                </h1>
+            </div>
+            
+            <!-- Tombol Navigasi ke Jurnal Penyesuaian & Tanggal -->
+            <div class="flex items-center gap-3">
+                <a href="penyesuaian.html" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 border border-indigo-200 shadow-sm">
+                    <i data-lucide="file-edit" class="w-3.5 h-3.5"></i> Lanjut ke Penyesuaian
+                </a>
+                <div class="text-xs text-slate-500 font-medium hidden sm:block" id="current-date"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow space-y-6">
+        
+        <!-- Informasi Ringkas & Status Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i> Ringkasan Saldo Akun Buku Besar
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Daftar saldo akhir untuk menguji keseimbangan sistem akuntansi double-entry.</p>
+            </div>
+            <div id="balance-status-box" class="px-4 py-2.5 rounded-xl border text-right w-full sm:w-auto">
+                <span class="text-[10px] uppercase tracking-wider font-bold block text-slate-500">Status Neraca Saldo</span>
+                <span id="balance-status-text" class="text-sm font-extrabold">-</span>
+            </div>
+        </div>
+
+        <!-- Tabel Neraca Saldo -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4 text-indigo-600"></i> Tabel Neraca Saldo
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="loadTrialBalance()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-1.5 rounded-lg transition-all border border-slate-200 flex items-center gap-1.5">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Segarkan
+                    </button>
+                    <button onclick="window.print()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg transition-all shadow-sm flex items-center gap-1.5">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> Cetak
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-xs text-slate-500 uppercase">
+                            <th class="py-2.5 px-3 font-semibold">No. Akun</th>
+                            <th class="py-2.5 px-3 font-semibold">Nama Akun</th>
+                            <th class="py-2.5 px-3 font-semibold">Tipe Akun</th>
+                            <th class="py-2.5 px-3 font-semibold text-right">Debit (Rp)</th>
+                            <th class="py-2.5 px-3 font-semibold text-right">Kredit (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trial-balance-tbody" class="divide-y divide-slate-100 text-xs">
+                        <!-- Data dimasukkan lewat JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-t-2 border-slate-200 font-bold text-xs text-slate-900 bg-slate-50/50">
+                            <td colspan="3" class="py-3 px-3 text-right uppercase tracking-wider">Total Keseluruhan:</td>
+                            <td id="total-tb-debit" class="py-3 px-3 text-right text-indigo-700">Rp 0</td>
+                            <td id="total-tb-credit" class="py-3 px-3 text-right text-rose-700">Rp 0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 FahnSmart Finance &bull; Asisten Akuntan
+    </footer>
+
+    <!-- Script -->
+    <script>
+        lucide.createIcons();
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { dateStyle: 'full' });
+
+        const chartOfAccounts = [
+            { id: '101', name: 'Kas di Laci', type: 'Aset', normal: 'Debit' },
+            { id: '102', name: 'Piutang Usaha (Kasbon)', type: 'Aset', normal: 'Debit' },
+            { id: '103', name: 'Persediaan Barang', type: 'Aset', normal: 'Debit' },
+            { id: '104', name: 'Peralatan / Inventaris Toko', type: 'Aset', normal: 'Debit' },
+            { id: '201', name: 'Utang Usaha', type: 'Liabilitas', normal: 'Kredit' },
+            { id: '301', name: 'Modal', type: 'Ekuitas', normal: 'Kredit' },
+            { id: '401', name: 'Pendapatan Penjualan', type: 'Pendapatan', normal: 'Kredit' },
+            { id: '501', name: 'Beban Operasional / Belanja', type: 'Beban', normal: 'Debit' }
+        ];
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function loadTrialBalance() {
+            let journals = JSON.parse(localStorage.getItem('databaseFahnSmartFinanceV1')) || [];
+            
+            let accountTotals = {};
+            chartOfAccounts.forEach(acc => {
+                accountTotals[acc.id] = { debit: 0, credit: 0 };
+            });
+
+            journals.forEach(trx => {
+                trx.debits.forEach(d => {
+                    if (accountTotals[d.accountId]) {
+                        accountTotals[d.accountId].debit += d.amount;
+                    }
+                });
+                trx.credits.forEach(c => {
+                    if (accountTotals[c.accountId]) {
+                        accountTotals[c.accountId].credit += c.amount;
+                    }
+                });
+            });
+
+            const tbody = document.getElementById('trial-balance-tbody');
+            tbody.innerHTML = '';
+
+            let sumTbDebit = 0;
+            let sumTbCredit = 0;
+
+            chartOfAccounts.forEach(acc => {
+                let t = accountTotals[acc.id];
+                let netBalance = 0;
+                let debitCol = '-';
+                let creditCol = '-';
+
+                if (acc.normal === 'Debit') {
+                    netBalance = t.debit - t.credit;
+                    if (netBalance !== 0) {
+                        debitCol = formatRupiah(netBalance);
+                        sumTbDebit += netBalance;
+                    }
+                } else {
+                    netBalance = t.credit - t.debit;
+                    if (netBalance !== 0) {
+                        creditCol = formatRupiah(netBalance);
+                        sumTbCredit += netBalance;
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-all">
+                        <td class="py-2.5 px-3 font-mono text-slate-500 font-medium">${acc.id}</td>
+                        <td class="py-2.5 px-3 font-bold text-slate-900">${acc.name}</td>
+                        <td class="py-2.5 px-3 text-slate-500">${acc.type}</td>
+                        <td class="py-2.5 px-3 text-right font-semibold text-indigo-700">${debitCol}</td>
+                        <td class="py-2.5 px-3 text-right font-semibold text-rose-700">${creditCol}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('total-tb-debit').innerText = formatRupiah(sumTbDebit);
+            document.getElementById('total-tb-credit').innerText = formatRupiah(sumTbCredit);
+
+            const statusBox = document.getElementById('balance-status-box');
+            const statusText = document.getElementById('balance-status-text');
+
+            if (sumTbDebit === sumTbCredit) {
+                statusBox.className = "px-4 py-2.5 rounded-xl border text-right w-full sm:w-auto bg-emerald-50 border-emerald-200";
+                statusText.className = "text-sm font-extrabold text-emerald-700";
+                statusText.innerText = "BALANCE (SEIMBANG)";
+            } else {
+                statusBox.className = "px-4 py-2.5 rounded-xl border text-right w-full sm:w-auto bg-rose-50 border-rose-200";
+                statusText.className = "text-sm font-extrabold text-rose-700";
+                statusText.innerText = "TIDAK SEIMBANG";
+            }
+        }
+
+        // Simulasi Loading 2 Detik sebelum halaman terbuka penuh
+        window.addEventListener('DOMContentLoaded', () => {
+            loadTrialBalance();
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 300);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
