@@ -1,5 +1,93 @@
 <!DOCTYPE html>
+<html lang="id"><!DOCTYPE html>
 <html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Sistem Keuangan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-white min-h-screen flex items-center justify-center p-6 text-slate-800">
+
+    <!-- LAYAR LOADING SELAMA 3 DETIK -->
+    <div id="loadingScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
+        <div class="flex flex-col items-center justify-center space-y-4 text-center">
+            <i data-lucide="loader-2" class="w-10 h-10 text-slate-900 animate-spin"></i>
+            <h1 class="text-xs font-bold tracking-widest text-slate-900 uppercase">
+                Wait For Your Account
+            </h1>
+            <p class="text-[11px] text-slate-400 font-medium">Menyiapkan portal sistem keuangan Anda...</p>
+        </div>
+    </div>
+
+    <div class="max-w-md w-full text-center">
+        <div class="mb-10">
+            <div class="inline-flex p-3 rounded-2xl bg-slate-50 border border-slate-100 mb-3 text-slate-900">
+                <i data-lucide="wallet" class="w-8 h-8"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900">Pilih Sistem Pencatatan</h1>
+            <p class="text-sm text-slate-500 mt-1">Silakan tentukan metode pembukuan Anda.</p>
+        </div>
+
+        <div class="space-y-3 text-left">
+            <!-- Menuju ke Halaman Login (Single-Entry) -->
+            <a href="login.html" class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center space-x-3.5">
+                    <span class="p-2.5 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 text-slate-700 transition-colors">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                    </span>
+                    <div class="space-y-0.5">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-black">Single-Entry System</h3>
+                        <p class="text-xs text-slate-500">Pencatatan kas masuk, keluar, & kasbon harian.</p>
+                    </div>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all"></i>
+            </a>
+
+            <!-- Menuju ke Halaman admin2.html (Double-Entry) -->
+            <a href="admin2.html" class="group flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-900 hover:bg-slate-50 transition-all duration-200">
+                <div class="flex items-center space-x-3.5">
+                    <span class="p-2.5 rounded-xl bg-slate-50 group-hover:bg-white border border-slate-100 text-slate-700 transition-colors">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    </span>
+                    <div class="space-y-0.5">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-black">Double-Entry System</h3>
+                        <p class="text-xs text-slate-500">Standar akuntansi seimbang Debit & Kredit.</p>
+                    </div>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all"></i>
+            </a>
+        </div>
+
+        <div class="mt-12 text-center">
+            <p class="text-xs text-slate-400">&copy; 2026 Financial Portal</p>
+        </div>
+    </div>
+
+    <script>
+        // Render Lucide Icons
+        lucide.createIcons();
+
+        // Logika Loading Screen selama 3 detik (3000 ms)
+        window.onload = function() {
+            setTimeout(() => {
+                let loadingScreen = document.getElementById('loadingScreen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => { 
+                    loadingScreen.style.display = 'none'; 
+                }, 500);
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
