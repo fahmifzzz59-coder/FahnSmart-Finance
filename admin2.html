@@ -26,20 +26,20 @@
                 </h1>
             </div>
             
-            <!-- Tombol Navigasi ke Neraca Saldo & Tanggal -->
+            <!-- Tombol Navigasi ke Buku Besar & Tanggal -->
             <div class="flex items-center gap-3">
-                <a href="neraca.html" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 border border-indigo-200 shadow-sm">
-                    <i data-lucide="scale" class="w-3.5 h-3.5"></i> Lihat Neraca Saldo
+                <a href="bukubesar.html" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 border border-indigo-200 shadow-sm">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Lanjut ke Buku Besar
                 </a>
                 <div class="text-xs text-slate-500 font-medium hidden sm:block" id="current-date"></div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
+    
     <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Kolom Kiri: Form Input Jurnal Majemuk -->
+        
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 h-fit">
                 <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -63,7 +63,6 @@
                         <input type="text" id="trx-desc" placeholder="Contoh: Setoran modal awal" required class="w-full text-sm border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
                     </div>
 
-                    <!-- Bagian DEBIT -->
                     <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold text-indigo-800 uppercase tracking-wider">Debit (+)</span>
@@ -96,8 +95,6 @@
                     </button>
                 </form>
             </div>
-
-            <!-- Panduan -->
             <div class="bg-amber-50/70 border border-amber-200 p-5 rounded-2xl shadow-sm text-xs space-y-3">
                 <h3 class="font-bold text-amber-900 flex items-center space-x-1.5 text-sm">
                     <i data-lucide="info" class="w-4 h-4 text-amber-700"></i> <span>Panduan Saldo Normal & Posisi Akun</span>
